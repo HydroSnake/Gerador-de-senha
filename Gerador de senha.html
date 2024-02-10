@@ -38,7 +38,7 @@
           </div>
         </div>
         <div class="security-indicator">
-          <div id="security-indicator-bar" class="bar" style="width: 90%"></div>
+          <div id="security-indicator-bar" class="bar"></div>
         </div>
       </section>
 
@@ -84,11 +84,37 @@
     <script>
       const inputEl = document.querySelector("#password")
 
+      const uppercaseCheckEl = document.querySelector('#uppercase-check')
+
+      const NumberCheckEl = document.querySelector('#number-check')
+
+      const SymbolCheckEl = document.querySelector('#symbol-check')
+
+      const SecurityBarEl = document.querySelector("#security-indicator-bar")
       let passwordLength = 16
 
       function generatePassword() {
-        const chars =
-          "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ123456789?!@&*()[]"
+        let chars =
+          "abcdefghjkmnpqrstuvwxyz"
+          const uppercasechars = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+          const numberchars = "123456789"
+          const symbolchars = "?!@&*()[]"
+
+          if (uppercaseCheckEl.checked){
+            chars +=uppercasechars
+          }
+          
+          if (NumberCheckEl.checked) {
+            chars +=numberchars
+          }
+          
+          if (SymbolCheckEl.checked) {
+            chars +=symbolchars
+          }
+
+          
+
+
 
         let password = ""
 
@@ -98,21 +124,89 @@
         }
 
         inputEl.value = password
+        Quality()
+        textFontsize()
+      }
+
+      function Quality() {
+        const percent = Math.round((passwordLength / 64 * 100)*
+        0.35 + (uppercaseCheckEl.checked ? 15 : 0) +
+        (NumberCheckEl.checked ? 20 : 0) +
+        (SymbolCheckEl.checked ? 30 : 0)
+        )
+
+
+        
+        SecurityBarEl.style.width = `${percent}%`
+
+        if (percent > 69) {
+          //safe
+          SecurityBarEl.classList.remove('critical')
+          SecurityBarEl.classList.remove('warning')
+          SecurityBarEl.classList.add('safe')
+
+        } else if (percent >37) {
+          //warning
+          SecurityBarEl.classList.remove('critical')
+          SecurityBarEl.classList.add('warning')
+          SecurityBarEl.classList.remove('safe')
+        } else {
+          //critical
+          SecurityBarEl.classList.add('critical')
+          SecurityBarEl.classList.remove('warning')
+          SecurityBarEl.classList.remove('safe')
+        }
+        if (percent >=100) {
+          SecurityBarEl.classList.add("completed")
+        } else {
+          SecurityBarEl.classList.remove("completed")
+        }
+      }
+
+      function textFontsize() {
+        if(passwordLength > 45){
+          inputEl.classList.remove('font-sm')
+          inputEl.classList.remove('font-xs')
+          inputEl.classList.add('font-xxs')
+        } else if (passwordLength>32){
+          inputEl.classList.remove('font-sm')
+          inputEl.classList.remove('font-xxs')
+          inputEl.classList.add('font-xs')
+
+        } else if (passwordLength >22) {
+          inputEl.classList.remove('font-xxs')
+          inputEl.classList.remove('font-xs')
+          inputEl.classList.add('font-sm')
+
+        } else {
+          inputEl.classList.remove('font-xxs')
+          inputEl.classList.remove('font-xs')
+          inputEl.classList.remove('font-sm')
+        }
       }
 
       function copy() {
         navigator.clipboard.writeText(inputEl.value)
       }
-
+      document.querySelector("#renew").addEventListener("click", generatePassword)
       const passwordLengthEl = document.querySelector("#password-length")
       passwordLengthEl.addEventListener("input", function () {
         passwordLength = passwordLengthEl.value
+        document.querySelector("#password-length-text").innerText = 
+        passwordLength
         generatePassword()
       })
+      uppercaseCheckEl.addEventListener('click', generatePassword)
+      NumberCheckEl.addEventListener('click', generatePassword)
+      SymbolCheckEl.addEventListener('click', generatePassword)
 
       document.querySelector("#copy-1").addEventListener("click", copy)
       document.querySelector("#copy-2").addEventListener("click", copy)
 
+      
+
+    
+      
       generatePassword()
     </script>
   </body>
